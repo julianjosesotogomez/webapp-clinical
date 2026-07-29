@@ -53,14 +53,47 @@ npm run lint     # ESLint (flat config)
   the shadcn conventions (Base UI engine, forms with react-hook-form + zod), but note that its **mobile-first**
   and **intake/Python** rules are for the mobile app and do **not** apply here.
 
+## Design system
+
+Both frontends share one brand system so the product feels coherent across the public intake app and this
+console. The rules:
+
+- **Token-first.** Colors, radii and fonts live as CSS variables in `src/app/globals.css`
+  (`@theme inline` / `:root` / `.dark`) — the navy/steel/sky brand palette, clinical semantics, and fluid
+  type/space tokens (`--text-fluid-*`, `--spacing-section`). **Never hardcode hex colors or ad-hoc radii**
+  in components; reference the tokens (`bg-primary`, `text-muted-foreground`, `rounded-xl`). This file is
+  kept in sync with the mobile app's `globals.css`.
+- **`/styleguide` is the living catalog** (`src/app/styleguide/`). It renders the real components (not
+  screenshots) with a light/dark toggle, and is **dev-only** — `notFound()` in production, `noindex`.
+  When you add or restyle a component, **mirror it in the styleguide**: if it isn't there, it isn't done.
+  The doc-only scaffolding (`Section`, `Specimen`, `Swatch`) lives in `styleguide/_components/`, never in
+  `src/shared`.
+- **Global footer.** `SiteFooter` (`src/shared/components/site-footer.tsx`) is mounted once in the root
+  `layout.tsx` with a sticky-footer layout: body is `min-h-svh flex flex-col`, and page roots use `flex-1`
+  (never `min-h-screen`, which would push the footer past the fold). Credit text is in `src/shared/brand.ts`
+  (`developerCredit` — a placeholder to fill in).
+- **Login brand panel.** `/login` is the only public surface, so it carries the brand hero: a split-screen
+  where a background video (`HeroMedia` + `public/media/hero.mp4`) sits behind the login card. The panel is
+  `hidden md:flex` — phones see only the form; tablet and desktop see the split. `HeroMedia` respects
+  `prefers-reduced-motion` (video hidden, optional poster shown) and keeps overlaid text AA-legible with a
+  navy scrim.
+- **Extract repeated/stateful JSX** into components rather than leaving markup inline, and reuse shadcn
+  primitives before writing new ones.
+
 ## Data contract (read before wiring any request)
 
 This app consumes **one** API surface: the .NET `MediCoreAI.Clinical` service. Reference the endpoint
 contracts in `../../backend-clinical/MediCoreAI.Clinical/CLAUDE.md` and the controllers/DTOs there.
 
-- `api/v1/auth` — `POST /login`, `POST /refresh`, `POST /logout`, `GET /current-user`. Access token comes
-  in the response body (short-lived, ~20 min); the refresh token is an httpOnly/Secure/SameSite=Strict
-  cookie the browser manages — never read or set it from JS.
+- `api/v1/auth` — `POST /login`, `POST /google`, `POST /refresh`, `POST /logout`, `GET /current-user`.
+  Access token comes in the response body (short-lived, ~20 min); the refresh token is an
+  httpOnly/Secure/SameSite=Strict cookie the browser manages — never read or set it from JS.
+- **Google Sign-In**: the login page renders Google's official button (Google Identity Services, loaded
+  via `next/script`) in `modules/auth/components/google-sign-in-button.tsx`; on credential it POSTs the
+  ID token to `POST /api/v1/auth/google` (`auth-client.googleLogin` → `AuthProvider.loginWithGoogle`).
+  Requires `NEXT_PUBLIC_GOOGLE_CLIENT_ID` (same OAuth Web client id as the API's `Google:ClientId`); when
+  unset, the button is hidden and password login still works. The authorized JavaScript origin must be
+  registered in Google Cloud Console for the button to render.
 - `api/v1/leads` — `GET /` (paginated + filters), `GET /{id}` (detail), `PATCH /{id}/review` (doctor's
   decision; `409` if already reviewed, `400` if `edited` without a `finalPlanId`).
 - `api/v1/medical-plans` — `GET /` (active plans catalog, used by the "edit plan" selector).

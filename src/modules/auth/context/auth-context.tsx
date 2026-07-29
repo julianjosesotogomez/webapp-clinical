@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 import {
   currentUser,
+  googleLogin as googleLoginRequest,
   login as loginRequest,
   logout as logoutRequest,
 } from "@/modules/auth/services/auth-client";
@@ -15,6 +16,7 @@ interface AuthContextValue {
   status: AuthStatus;
   user: AuthUser | null;
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: (idToken: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -51,6 +53,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setStatus("authenticated");
   }
 
+  async function loginWithGoogle(idToken: string): Promise<void> {
+    const resolved = await googleLoginRequest(idToken);
+    setUser(resolved);
+    setStatus("authenticated");
+  }
+
   async function logout(): Promise<void> {
     await logoutRequest();
     setUser(null);
@@ -58,7 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ status, user, login, logout }}>
+    <AuthContext.Provider value={{ status, user, login, loginWithGoogle, logout }}>
       {children}
     </AuthContext.Provider>
   );

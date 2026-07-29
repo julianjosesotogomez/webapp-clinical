@@ -26,6 +26,16 @@ const QUESTIONS: Record<string, QuestionMeta> = {
     },
   },
   age: { label: "Edad" },
+  // Shown only when the lead gave a birth date on the form: the chat derives
+  // the age from it and asks for confirmation instead of asking outright.
+  // "No" means the lead typed a different age — see `age_source` in inputData.
+  age_confirm: {
+    label: "¿Confirmó la edad calculada de su fecha de nacimiento?",
+    options: {
+      si: "Sí, es correcta",
+      no: "No, la corrigió",
+    },
+  },
   weight_kg: { label: "Peso (kg)" },
   height_cm: { label: "Estatura (cm)" },
   main_goal: {
