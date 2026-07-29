@@ -37,7 +37,9 @@ export default function DashboardLayout({
   }
 
   // Authenticated but not a doctor → no access to the clinical console.
-  if (user?.role !== "Doctor") {
+  // Case-insensitive: the role can arrive as "Doctor" (JWT claim / current-user)
+  // or "doctor" (login response) depending on the source.
+  if (user?.role?.toLowerCase() !== "doctor") {
     return (
       <FullScreen>
         Acceso restringido: esta sección es solo para personal médico.
