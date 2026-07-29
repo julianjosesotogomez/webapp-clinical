@@ -52,6 +52,13 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Fluid tokens — type/space that scale with the viewport (shared with the
+     mobile app for a coherent design system). Opt-in via text-fluid-* and
+     the section spacing utility. */
+  --text-fluid-sm: clamp(0.8125rem, 0.75rem + 0.2vw, 0.875rem);
+  --text-fluid-base: clamp(0.9375rem, 0.875rem + 0.2vw, 1rem);
+  --spacing-section: clamp(2rem, 1.5rem + 2vw, 4rem);
 }
 
 :root {

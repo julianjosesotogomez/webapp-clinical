@@ -15,10 +15,15 @@ import { Input } from "@/shared/components/ui/input";
 import { Button } from "@/shared/components/ui/button";
 import { ApiError } from "@/shared/lib/api-client";
 import { useAuth } from "@/modules/auth/context/auth-context";
+import { GoogleSignInButton } from "@/modules/auth/components/google-sign-in-button";
 import {
   loginSchema,
   type LoginFormValues,
 } from "@/modules/auth/schemas/login.schema";
+
+// Inlined at build time. Gates the Google option so the "o" divider never
+// shows on its own when Google Sign-In isn't configured.
+const googleEnabled = !!process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
 export function LoginForm() {
   const router = useRouter();
@@ -83,6 +88,17 @@ export function LoginForm() {
         <Button type="submit" size="lg" disabled={isSubmitting} className="w-full">
           {isSubmitting ? "Ingresando..." : "Iniciar sesión"}
         </Button>
+
+        {googleEnabled && (
+          <>
+            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+              <span className="h-px flex-1 bg-border" />
+              <span>o</span>
+              <span className="h-px flex-1 bg-border" />
+            </div>
+            <GoogleSignInButton />
+          </>
+        )}
       </FieldGroup>
     </form>
   );

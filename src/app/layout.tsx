@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Jost, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/modules/auth/context/auth-context";
+import { SiteFooter } from "@/shared/components/site-footer";
 
 const jost = Jost({
   variable: "--font-sans",
@@ -30,8 +31,9 @@ export default function RootLayout({
       lang="es"
       className={`${jost.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-svh flex flex-col">
         <AuthProvider>{children}</AuthProvider>
+        <SiteFooter />
       </body>
     </html>
   );

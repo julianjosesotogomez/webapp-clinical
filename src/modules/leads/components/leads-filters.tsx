@@ -9,9 +9,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
-import { Input } from "@/shared/components/ui/input";
+import { DatePicker } from "@/shared/components/ui/date-picker";
 import { Button } from "@/shared/components/ui/button";
 import type { SubmissionStatus } from "@/modules/leads/types";
+
+// The URL keeps dates as plain `YYYY-MM-DD`; the DatePicker works in `Date`.
+// Noon avoids the day shifting under negative UTC offsets on parse.
+function toDate(value: string): Date | undefined {
+  return value ? new Date(`${value}T12:00:00`) : undefined;
+}
+
+function toParam(date: Date | undefined): string | null {
+  if (!date) return null;
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
 
 const STATUS_OPTIONS: { value: SubmissionStatus; label: string }[] = [
   { value: "new", label: "Nuevo" },
@@ -30,6 +44,10 @@ export function LeadsFilters() {
   const status = searchParams.get("status") ?? ALL;
   const from = searchParams.get("from") ?? "";
   const to = searchParams.get("to") ?? "";
+
+  // Leads are recent by nature: no future dates, a few years of history is plenty.
+  const today = new Date();
+  const fromMonth = new Date(today.getFullYear() - 3, 0);
 
   function update(next: Record<string, string | null>) {
     const params = new URLSearchParams(searchParams.toString());
@@ -78,28 +96,26 @@ export function LeadsFilters() {
       </div>
 
       <div className="flex flex-col gap-1">
-        <label htmlFor="from" className="text-xs font-medium text-muted-foreground">
-          Desde
-        </label>
-        <Input
-          id="from"
-          type="date"
-          value={from}
+        <span className="text-xs font-medium text-muted-foreground">Desde</span>
+        <DatePicker
+          value={toDate(from)}
+          onChange={(date) => update({ from: toParam(date) })}
+          placeholder="Desde"
           className="h-9 w-40"
-          onChange={(event) => update({ from: event.target.value || null })}
+          startMonth={fromMonth}
+          endMonth={today}
         />
       </div>
 
       <div className="flex flex-col gap-1">
-        <label htmlFor="to" className="text-xs font-medium text-muted-foreground">
-          Hasta
-        </label>
-        <Input
-          id="to"
-          type="date"
-          value={to}
+        <span className="text-xs font-medium text-muted-foreground">Hasta</span>
+        <DatePicker
+          value={toDate(to)}
+          onChange={(date) => update({ to: toParam(date) })}
+          placeholder="Hasta"
           className="h-9 w-40"
-          onChange={(event) => update({ to: event.target.value || null })}
+          startMonth={fromMonth}
+          endMonth={today}
         />
       </div>
 

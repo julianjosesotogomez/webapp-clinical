@@ -8,7 +8,7 @@ import { useAuth } from "@/modules/auth/context/auth-context";
 
 function FullScreen({ children }: { children: React.ReactNode }) {
   return (
-    <main className="flex min-h-screen flex-1 items-center justify-center bg-background p-6">
+    <main className="flex flex-1 items-center justify-center bg-background p-6">
       <p className="text-sm text-muted-foreground">{children}</p>
     </main>
   );
@@ -46,7 +46,7 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="flex min-h-screen flex-1 flex-col">
+    <div className="flex flex-1 flex-col">
       <header className="border-b border-border bg-card">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-6 py-3">
           <span className="text-sm font-semibold text-foreground">
